@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LuxianCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.luxian_id as luxianId
+        ,a.yonghu_id as yonghuId
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LuxianCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,luxian.luxian_name as luxianName
+        ,luxian.luxian_photo as luxianPhoto
+        ,luxian.luxian_content as luxianContent
+        ,luxian.luxian_types as luxianTypes
+        ,luxian.luxian_jingdian as luxianJingdian
+        ,luxian.luxian_new_money as luxianNewMoney
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.id_number as idNumber
+        ,yonghu.phone as phone
+        ,yonghu.yonghu_photo as yonghuPhoto
+
+        FROM luxian_collection  a
+        left JOIN luxian luxian ON a.luxian_id = luxian.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.luxianId != null">
+                and a.luxian_id = #{params.luxianId}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+            <if test=" params.luxianName != '' and params.luxianName != null and params.luxianName != 'null' ">
+                and luxian.luxian_name like CONCAT('%',#{params.luxianName},'%')
+            </if>
+            <if test=" params.luxianContent != '' and params.luxianContent != null and params.luxianContent != 'null' ">
+                and luxian.luxian_content like CONCAT('%',#{params.luxianContent},'%')
+            </if>
+            <if test="params.luxianTypes != null">
+                and luxian.luxian_types = #{params.luxianTypes}
+            </if>
+
+            <if test=" params.luxianJingdian != '' and params.luxianJingdian != null and params.luxianJingdian != 'null' ">
+                and luxian.luxian_jingdian like CONCAT('%',#{params.luxianJingdian},'%')
+            </if>
+            <if test="params.luxianNewMoneyStart != null ">
+                <![CDATA[  and luxian.luxian_new_money >= #{params.luxianNewMoneyStart}   ]]>
+            </if>
+            <if test="params.luxianNewMoneyEnd != null ">
+                <![CDATA[  and luxian.luxian_new_money <= #{params.luxianNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.idNumber != '' and params.idNumber != null and params.idNumber != 'null' ">
+                and yonghu.id_number like CONCAT('%',#{params.idNumber},'%')
+            </if>
+            <if test=" params.phone != '' and params.phone != null and params.phone != 'null' ">
+                and yonghu.phone like CONCAT('%',#{params.phone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

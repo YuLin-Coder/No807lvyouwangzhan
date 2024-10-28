@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LuxianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.luxian_name as luxianName
+        ,a.luxian_photo as luxianPhoto
+        ,a.luxian_content as luxianContent
+        ,a.luxian_types as luxianTypes
+        ,a.luxian_jingdian as luxianJingdian
+        ,a.luxian_new_money as luxianNewMoney
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LuxianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM luxian  a
+
+        <where>
+            <if test=" params.luxianName != '' and params.luxianName != null and params.luxianName != 'null' ">
+                and a.luxian_name like CONCAT('%',#{params.luxianName},'%')
+            </if>
+            <if test=" params.luxianContent != '' and params.luxianContent != null and params.luxianContent != 'null' ">
+                and a.luxian_content like CONCAT('%',#{params.luxianContent},'%')
+            </if>
+            <if test="params.luxianTypes != null">
+                and a.luxian_types = #{params.luxianTypes}
+            </if>
+            <if test=" params.luxianJingdian != '' and params.luxianJingdian != null and params.luxianJingdian != 'null' ">
+                and a.luxian_jingdian like CONCAT('%',#{params.luxianJingdian},'%')
+            </if>
+            <if test="params.luxianNewMoneyStart != null">
+                <![CDATA[  and a.luxian_new_money >= #{params.luxianNewMoneyStart}   ]]>
+            </if>
+            <if test="params.luxianNewMoneyEnd != null">
+                <![CDATA[  and a.luxian_new_money <= #{params.luxianNewMoneyEnd}   ]]>
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
